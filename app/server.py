@@ -8,6 +8,8 @@ from io import BytesIO
 from fastai import *
 from fastai.vision import *
 
+from models.gradcam import *
+
 # export_file_url = 'https://www.dropbox.com/s/v6cuuvddq73d1e0/export.pkl?raw=1'
 # export_file_url = 'https://www.dropbox.com/s/6bgq8t6yextloqp/export.pkl?raw=1'
 # export_file_url = 'https://drive.google.com/uc?export=download&id=1ou6m5GvS2zo6jxjdKzCIFRqpoON8ytn6'
@@ -58,7 +60,17 @@ async def analyze(request):
     img_bytes = await (data['file'].read())
     img = open_image(BytesIO(img_bytes))
     prediction = learn.predict(img)[0]
-    return JSONResponse({'result': str(prediction)})
+
+    gcam = GradCam.from_one_img(learn,img)
+    gcam_img = gcam.plot()
+
+    json_result = {
+        'result': str(prediction),
+        'img': gcam_img
+    }
+
+    return JSONResponse(json_result)
+
 
 if __name__ == '__main__':
     if 'serve' in sys.argv: uvicorn.run(app=app, host='0.0.0.0', port=5042)

@@ -22,9 +22,12 @@ function analyze() {
     xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/analyze`, true);
     xhr.onerror = function() {alert (xhr.responseText);}
     xhr.onload = function(e) {
+        console.log(JSON.parse(e.target.responseText));
         if (this.readyState === 4) {
             var response = JSON.parse(e.target.responseText);
-            el('result-label').innerHTML = `Result = ${response['result']}`;
+            el('result-label').innerHTML = `Result = ${response['result']}`;            
+            el('image-res').src = response['img'];
+            el('image-res').className = '';
         }
         el('analyze-button').innerHTML = 'Analyze';
     }
