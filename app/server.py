@@ -24,6 +24,7 @@ app = Starlette()
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_headers=['X-Requested-With', 'Content-Type'])
 app.mount('/static', StaticFiles(directory='app/static'))
 
+
 async def download_file(url, dest):
     if dest.exists(): return
     async with aiohttp.ClientSession() as session:
@@ -50,9 +51,9 @@ learn = loop.run_until_complete(asyncio.gather(*tasks))[0]
 loop.close()
 
 @app.route('/')
-def index(request):
-    html = path/'view'/'index.html'
-    return HTMLResponse(html.open().read())
+async def homepage(request):
+    html_file = path / 'view' / 'index.html'
+    return HTMLResponse(html_file.open().read())
 
 @app.route('/analyze', methods=['POST'])
 async def analyze(request):
@@ -73,4 +74,7 @@ async def analyze(request):
 
 
 if __name__ == '__main__':
-    if 'serve' in sys.argv: uvicorn.run(app=app, host='0.0.0.0', port=5042)
+    if 'serve' in sys.argv:
+        uvicorn.run(app=app, host='0.0.0.0', port=5000, log_level="info")
+
+
